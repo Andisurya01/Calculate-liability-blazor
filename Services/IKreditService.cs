@@ -16,4 +16,6 @@ namespace IMSFinance.Services
         Task<List<DendaItemViewModel>> GetDendaAsync(string kontrakNo, DateTime perTanggal, int sudahBayarKe);
         Task<List<string>> GetAllKontrakNoAsync();
     }
+
+    
 }

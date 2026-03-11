@@ -27,13 +27,11 @@ namespace IMSFinance.Controllers
             _logger      = logger;
         }
 
-        // GET: /JatuhTempo
         public IActionResult Index()
         {
             return View(new JatuhTempoInputViewModel());
         }
 
-        // POST: /JatuhTempo/CekDariDB
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CekDariDB(JatuhTempoInputViewModel input)
