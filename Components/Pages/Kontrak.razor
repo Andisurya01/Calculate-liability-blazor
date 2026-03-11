@@ -1,0 +1,218 @@
+@page "/"
+@rendermode InteractiveServer
+@using IMSFinance.Models
+@using IMSFinance.Models.ViewModels
+@using IMSFinance.Data
+@inject DatabaseHelper Db
+@inject ILogger<Kontrak> Logger
+
+<PageTitle>Input Kontrak Baru</PageTitle>
+
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Pendaftaran Kontrak Baru</h1>
+        <p class="text-gray-500 text-sm mt-1">Lengkapi detail pembiayaan dan informasi klien.</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
+            ⚠️ @errorMessage
+        </div>
+    }
+
+    @if (result == null)
+    {
+        <!-- Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <EditForm Model="input" OnValidSubmit="Hitung">
+                <DataAnnotationsValidator />
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kontrak</label>
+                        <InputText @bind-Value="input.KontrakNo"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+                        <ValidationMessage For="() => input.KontrakNo" class="text-red-500 text-xs" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Klien</label>
+                        <InputText @bind-Value="input.ClientName" placeholder="Nama lengkap klien"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+                        <ValidationMessage For="() => input.ClientName" class="text-red-500 text-xs" />
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Harga OTR (Rp)</label>
+                        <InputNumber @bind-Value="input.OTR" placeholder="0"
+                                     class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+                        <ValidationMessage For="() => input.OTR" class="text-red-500 text-xs" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Down Payment (%)</label>
+                        <InputNumber @bind-Value="input.PersenDP"
+                                     class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+                        <p class="text-xs text-gray-400 mt-1">Persentase dari nilai OTR</p>
+                        <ValidationMessage For="() => input.PersenDP" class="text-red-500 text-xs" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tenor (Bulan)</label>
+                        <InputNumber @bind-Value="input.Tenor"
+                                     class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+                        <p class="text-xs text-gray-400 mt-1">≤12: 12% | 13-24: 14% | >24: 16.5%</p>
+                        <ValidationMessage For="() => input.Tenor" class="text-red-500 text-xs" />
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai Angsuran</label>
+                        <InputDate @bind-Value="input.TanggalMulai"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+                        <ValidationMessage For="() => input.TanggalMulai" class="text-red-500 text-xs" />
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
+                    <button type="button" @onclick="Reset"
+                            class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                        Batalkan
+                    </button>
+                    <button type="submit" disabled="@isLoading"
+                            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                        @if (isLoading) { <span>⏳ Menyimpan...</span> }
+                        else { <span>💾 Simpan Kontrak</span> }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    }
+    else
+    {
+        <!-- Result -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
+            <h2 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Ringkasan Kredit</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <SummaryBox Label="Nomor Kontrak" Value="@result?.Kredit.KontrakNo" />
+                <SummaryBox Label="Nama Klien" Value="@result?.Kredit.ClientName" />
+                <SummaryBox Label="Harga OTR" Value="@($"Rp {result?.Kredit.OTR:N0}")" />
+                <SummaryBox Label="Down Payment" Value="@($"Rp {result?.Kredit.HitungDP():N0}")" />
+                <SummaryBox Label="Pokok Utang" Value="@($"Rp {result?.Kredit.HitungPokok():N0}")" />
+                <SummaryBox Label="Bunga / Tahun" Value="@($"{result?.Kredit.TentukanBunga() * 100}% (flat)")" />
+                <div class="col-span-2 bg-red-50 border border-red-100 rounded-lg p-3">
+                    <p class="text-xs text-gray-500">Angsuran / Bulan</p>
+                    <p class="font-bold text-red-700 text-lg">Rp @result?.Kredit.HitungAngsuran().ToString(format: "N0")</p>
+                </div>
+            </div>
+        </div>
+
+        <button @onclick="() => showModal = true"
+                class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors mb-4">
+            Lihat Jadwal Angsuran (@result?.Jadwal.Count bulan)
+        </button>
+
+        <button @onclick="Reset"
+                class="w-full py-2 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-sm transition-colors">
+            ← Hitung Ulang
+        </button>
+    }
+</div>
+
+@if (showModal && result != null)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50" @onclick="() => showModal = false"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col" style="max-height:80vh">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+                <div>
+                    <h3 class="font-bold text-gray-800">Jadwal Angsuran</h3>
+                    <p class="text-xs text-gray-500">@result?.Kredit.KontrakNo — @result?.Kredit.ClientName</p>
+                </div>
+                <button @onclick="() => showModal = false"
+                        class="text-gray-400 hover:text-gray-600 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                    ×
+                </button>
+            </div>
+
+            <div class="overflow-y-auto flex-1">
+                <table class="w-full text-sm">
+                    <thead class="bg-red-600 text-white sticky top-0">
+                        <tr>
+                            <th class="px-4 py-3 text-left">No</th>
+                            <th class="px-4 py-3 text-right">Angsuran / Bulan</th>
+                            <th class="px-4 py-3 text-center">Jatuh Tempo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (JadwalAngsuran item in result?.Jadwal ?? new List<JadwalAngsuran>())
+                        {
+                            <tr class="border-b border-gray-50 hover:bg-gray-50">
+                                <td class="px-4 py-3 text-gray-500">@item.AngsuranKe</td>
+                                <td class="px-4 py-3 text-right font-semibold">Rp @item.AngsuranPerBulan.ToString(format: "N0")</td>
+                                <td class="px-4 py-3 text-center text-gray-600">@item.TanggalJatuhTempo.ToString(format: "dd MMM yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl shrink-0 flex justify-between">
+                <span class="text-sm text-gray-500">Total @result?.Jadwal.Count angsuran</span>
+                <span class="font-bold text-gray-800">Total: Rp @result?.Jadwal.Sum(j => j.AngsuranPerBulan).ToString(format: "N0")</span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private KontrakInputViewModel input = new KontrakInputViewModel();
+    private (Kredit Kredit, List<JadwalAngsuran> Jadwal)? result;
+    private bool showModal = false;
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+
+    private async Task Hitung()
+    {
+        isLoading     = true;
+        errorMessage  = string.Empty;
+
+        try
+        {
+            Kredit? kredit = new Kredit
+            {
+                KontrakNo    = input.KontrakNo,
+                ClientName   = input.ClientName,
+                OTR          = input.OTR,
+                PersenDP     = input.PersenDP,
+                Tenor        = input.Tenor,
+                TanggalMulai = input.TanggalMulai
+            };
+
+            List<JadwalAngsuran>? jadwal = kredit.GenerateJadwal();
+
+            await Db.SimpanKontrakAsync(kredit.KontrakNo, kredit.ClientName, kredit.OTR);
+            List<(string KontrakNo, int AngsuranKe, decimal AngsuranPerBulan, DateTime TanggalJatuhTempo)>? jadwalTuples = jadwal.Select(j => (kredit.KontrakNo, j.AngsuranKe, j.AngsuranPerBulan, j.TanggalJatuhTempo)).ToList();
+            await Db.SimpanJadwalAsync(jadwalTuples);
+
+            result = (kredit, jadwal);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, message: "Error Hitung");
+            errorMessage = "Gagal menyimpan data. Periksa koneksi database.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Reset()
+    {
+        input        = new KontrakInputViewModel();
+        result       = null;
+        showModal    = false;
+        errorMessage = string.Empty;
+    }
+}

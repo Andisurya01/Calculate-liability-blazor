@@ -1,0 +1,199 @@
+@model JatuhTempoInputViewModel
+@{
+    ViewData["Title"]      = "Cek Jatuh Tempo";
+    ViewData["ActiveMenu"] = "jatuhtempo";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Cek Angsuran Jatuh Tempo</h1>
+        <p class="text-gray-500 text-sm mt-1">Masukkan nomor kontrak dan tanggal untuk melihat total angsuran jatuh tempo.</p>
+    </div>
+
+    <!-- Error -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p>⚠️ @error.ErrorMessage</p>
+            }
+        </div>
+    }
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kontrak</label>
+                <input id="kontrakNo" type="text" placeholder="Contoh: AGR00001"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Per Tanggal</label>
+                <input id="perTanggal" type="date"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+            </div>
+        </div>
+
+        <!-- Sumber Data Toggle -->
+        <div class="flex items-center gap-3 mb-5">
+            <span class="text-sm text-gray-600 font-medium">Sumber data:</span>
+            <div class="flex bg-gray-100 rounded-lg p-1">
+                <button id="btnDB" onclick="setSumber('db')"
+                        class="px-4 py-1.5 text-sm rounded-md font-medium transition-all bg-red-600 text-white">
+                    Database
+                </button>
+                <button id="btnJson" onclick="setSumber('json')"
+                        class="px-4 py-1.5 text-sm rounded-md font-medium transition-all text-gray-500 hover:text-gray-700">
+                    JSON
+                </button>
+            </div>
+        </div>
+
+        <button onclick="cekJatuhTempo()"
+                class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm">
+            Cek Jatuh Tempo
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden text-center py-8">
+        <div class="inline-block w-8 h-8 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+        <p class="text-gray-500 text-sm mt-2">Mengambil data...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMsg" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm"></div>
+
+    <!-- Result -->
+    <div id="result" class="hidden">
+        <!-- Summary -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Kontrak</p>
+                    <p id="resKontrakNo" class="font-bold text-gray-800 text-lg"></p>
+                    <p id="resClientName" class="text-gray-500 text-sm"></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Total Angsuran Jatuh Tempo</p>
+                    <p id="resTotalAngsuran" class="font-bold text-red-600 text-2xl"></p>
+                    <p id="resSumber" class="text-xs text-gray-400 mt-1"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="font-semibold text-gray-700 text-sm">Detail Jadwal Jatuh Tempo</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">No</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Angsuran/Bulan</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Jatuh Tempo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let sumber = 'db';
+
+    function setSumber(s) {
+        sumber = s;
+        document.getElementById('btnDB').className   = s === 'db'
+            ? 'px-4 py-1.5 text-sm rounded-md font-medium transition-all bg-red-600 text-white'
+            : 'px-4 py-1.5 text-sm rounded-md font-medium transition-all text-gray-500 hover:text-gray-700';
+        document.getElementById('btnJson').className = s === 'json'
+            ? 'px-4 py-1.5 text-sm rounded-md font-medium transition-all bg-red-600 text-white'
+            : 'px-4 py-1.5 text-sm rounded-md font-medium transition-all text-gray-500 hover:text-gray-700';
+    }
+
+    async function cekJatuhTempo() {
+        const kontrakNo  = document.getElementById('kontrakNo').value.trim();
+        const perTanggal = document.getElementById('perTanggal').value;
+
+        if (!kontrakNo || !perTanggal) {
+            showError('Nomor kontrak dan tanggal wajib diisi.');
+            return;
+        }
+
+        showLoading(true);
+        hideResult();
+
+        try {
+            const res = await fetch('/JatuhTempo/GetResult', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ kontrakNo, perTanggal, sumber })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                showError(err.message);
+                return;
+            }
+
+            const data = await res.json();
+            renderResult(data);
+        } catch (e) {
+            showError('Gagal menghubungi server. Coba lagi.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function renderResult(data) {
+        document.getElementById('resKontrakNo').textContent    = data.kontrakNo;
+        document.getElementById('resClientName').textContent   = data.clientName;
+        document.getElementById('resTotalAngsuran').textContent = 'Rp ' + formatNumber(data.totalAngsuranJatuhTempo);
+        document.getElementById('resSumber').textContent       = 'Sumber: ' + (sumber === 'db' ? 'Database' : 'JSON');
+
+        const tbody = document.getElementById('detailTable');
+        tbody.innerHTML = data.detailJadwal.map(j => `
+            <tr class="border-b border-gray-50 hover:bg-gray-50">
+                <td class="px-4 py-3 text-gray-500">${j.angsuranKe}</td>
+                <td class="px-4 py-3 text-right font-semibold text-gray-800">Rp ${formatNumber(j.angsuranPerBulan)}</td>
+                <td class="px-4 py-3 text-center text-gray-600">${formatDate(j.tanggalJatuhTempo)}</td>
+            </tr>
+        `).join('');
+
+        document.getElementById('result').classList.remove('hidden');
+        document.getElementById('errorMsg').classList.add('hidden');
+    }
+
+    function showLoading(show) {
+        document.getElementById('loading').classList.toggle('hidden', !show);
+    }
+
+    function hideResult() {
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('errorMsg').classList.add('hidden');
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = '⚠️ ' + msg;
+        el.classList.remove('hidden');
+        document.getElementById('result').classList.add('hidden');
+    }
+
+    function formatNumber(n) {
+        return new Intl.NumberFormat('id-ID').format(n);
+    }
+
+    function formatDate(d) {
+        return new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+</script>
+}

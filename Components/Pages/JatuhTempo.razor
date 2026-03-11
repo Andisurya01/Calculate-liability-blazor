@@ -1,0 +1,142 @@
+@page "/jatuh-tempo"
+@rendermode InteractiveServer
+@using IMSFinance.Models
+@using IMSFinance.Models.ViewModels
+@using IMSFinance.Services
+@inject IKreditService DbService
+@inject IKreditJsonService JsonService
+@inject ILogger<JatuhTempo> Logger
+
+<PageTitle>Cek Jatuh Tempo</PageTitle>
+
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Cek Angsuran Jatuh Tempo</h1>
+        <p class="text-gray-500 text-sm mt-1">Masukkan nomor kontrak dan tanggal untuk melihat total angsuran jatuh tempo.</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="grid grid-cols-2 gap-4 mb-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kontrak</label>
+                <input @bind="kontrakNo" placeholder="AGR00001"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Per Tanggal</label>
+                <input type="date" @bind="perTanggal"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 mb-5">
+            <span class="text-sm text-gray-600 font-medium">Sumber data:</span>
+            <div class="flex bg-gray-100 rounded-lg p-1">
+                <button @onclick='() => sumber = "db"'
+                        class="@(sumber == "db" ? "bg-red-600 text-white" : "text-gray-500 hover:text-gray-700") px-4 py-1.5 text-sm rounded-md font-medium transition-all">
+                    Database
+                </button>
+                <button @onclick='() => sumber = "json"'
+                        class="@(sumber == "json" ? "bg-red-600 text-white" : "text-gray-500 hover:text-gray-700") px-4 py-1.5 text-sm rounded-md font-medium transition-all">
+                    JSON
+                </button>
+            </div>
+        </div>
+
+        <button @onclick="CekJatuhTempo" disabled="@isLoading"
+                class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm">
+            @(isLoading ? " Mengambil data..." : "Cek Jatuh Tempo")
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
+            ⚠️ @errorMessage
+        </div>
+    }
+
+    @if (result != null)
+    {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Kontrak</p>
+                    <p class="font-bold text-gray-800 text-lg">@result.KontrakNo</p>
+                    <p class="text-gray-500 text-sm">@result.ClientName</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Total Angsuran Jatuh Tempo</p>
+                    <p class="font-bold text-red-600 text-2xl">Rp @result.TotalAngsuranJatuhTempo.ToString(format: "N0")</p>
+                    <p class="text-xs text-gray-400 mt-1">Sumber: @(sumber == "db" ? "Database" : "JSON")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="font-semibold text-gray-700 text-sm">Detail Jadwal Jatuh Tempo</h3>
+            </div>
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">No</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Angsuran/Bulan</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Jatuh Tempo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (JadwalAngsuran item in result.DetailJadwal)
+                    {
+                        <tr class="border-b border-gray-50 hover:bg-gray-50">
+                            <td class="px-4 py-3 text-gray-500">@item.AngsuranKe</td>
+                            <td class="px-4 py-3 text-right font-semibold text-gray-800">Rp @item.AngsuranPerBulan.ToString(format: "N0")</td>
+                            <td class="px-4 py-3 text-center text-gray-600">@item.TanggalJatuhTempo.ToString(format: "dd MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private string kontrakNo   = string.Empty;
+    private DateTime perTanggal = DateTime.Today;
+    private string sumber       = "db";
+    private bool isLoading      = false;
+    private string errorMessage = string.Empty;
+    private JatuhTempoResultViewModel? result;
+
+    private async Task CekJatuhTempo()
+    {
+        if (string.IsNullOrWhiteSpace(kontrakNo))
+        {
+            errorMessage = "Nomor kontrak wajib diisi.";
+            return;
+        }
+
+        isLoading    = true;
+        errorMessage = string.Empty;
+        result       = null;
+
+        try
+        {
+            result = sumber == "json"
+                ? await JsonService.GetJatuhTempoAsync(kontrakNo, perTanggal)
+                : await DbService.GetJatuhTempoAsync(kontrakNo, perTanggal);
+
+            if (result == null)
+                errorMessage = $"Kontrak '{kontrakNo}' tidak ditemukan.";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error CekJatuhTempo");
+            errorMessage = "Gagal mengambil data. Periksa koneksi.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -18,11 +18,7 @@ D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.M
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\rjimswa.dswa.cache.json
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
-D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\scopedcss\Components\Layout\MainLayout.razor.rz.scp.css
-D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\scopedcss\Components\Layout\NavMenu.razor.rz.scp.css
-D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\scopedcss\Components\Layout\ReconnectModal.razor.rz.scp.css
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\scopedcss\bundle\IMSFinance.styles.css
-D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\scopedcss\projectbundle\IMSFinance.bundle.scp.css
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\a3s8d1luus-{0}-khy4lop6wu-khy4lop6wu.gz
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\6fd3rwmduo-{0}-bqjiyaj88i-bqjiyaj88i.gz
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\hmwig8l9dn-{0}-c2jlpeoesf-c2jlpeoesf.gz
@@ -68,11 +64,8 @@ D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\i
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\h1cpk2rmg8-{0}-h1s4sie4z3-h1s4sie4z3.gz
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\rhl7myo6jm-{0}-63fj8s7r0e-63fj8s7r0e.gz
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\lnlql5noec-{0}-0j3bgjxly4-0j3bgjxly4.gz
-D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\7khtuu6vvh-{0}-abdmv1u4y3-abdmv1u4y3.gz
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\jkh0qhwmp3-{0}-ax6tuj8tun-ax6tuj8tun.gz
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\yd6ibndstr-{0}-zr4b1gdhaw-zr4b1gdhaw.gz
-D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\hgg4e2sukm-{0}-37jtjgo762-37jtjgo762.gz
-D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\compressed\s38ydfovcu-{0}-37jtjgo762-37jtjgo762.gz
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\staticwebassets.build.json
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\staticwebassets.build.json.cache
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\staticwebassets.development.json
@@ -83,3 +76,10 @@ D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\refint\IMSFi
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.pdb
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.genruntimeconfig.cache
 D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\ref\IMSFinance.dll
+D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\bin\Debug\net10.0\dotnet-tools.json
+D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\bin\Debug\net10.0\Npgsql.dll
+D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.csproj.AssemblyReference.cache
+D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.RazorAssemblyInfo.cache
+D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.RazorAssemblyInfo.cs
+D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.sourcelink.json
+D:\Test kerja\PT. INOVASI MITRA SEJATI\IMSFinance\obj\Debug\net10.0\IMSFinance.csproj.Up2Date

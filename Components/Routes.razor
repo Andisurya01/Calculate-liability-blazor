@@ -1,6 +1,16 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+<Router AppAssembly="typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+    <NotFound>
+        <PageTitle>404 — Halaman Tidak Ditemukan</PageTitle>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <div class="text-center py-20">
+                <p class="text-6xl font-bold text-gray-200">404</p>
+                <p class="text-gray-500 mt-4">Halaman tidak ditemukan.</p>
+                <a href="/" class="mt-6 inline-block text-red-600 hover:underline">← Kembali ke Beranda</a>
+            </div>
+        </LayoutView>
+    </NotFound>
 </Router>
