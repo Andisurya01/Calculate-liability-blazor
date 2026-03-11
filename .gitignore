@@ -1,5 +1,21 @@
+# .NET build folders
 bin/
 obj/
-.git/
-.vscode/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider / JetBrains
+.idea/
+
+# Node modules (jika ada)
 node_modules/
+
+# logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
